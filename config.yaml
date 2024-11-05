@@ -1,0 +1,39 @@
+soon_expired_warning: "60"
+soon_expired_critical: "7"
+host: "localhost"
+port: "8080"
+file_path: "github.com/splashk1e/jet/license.txt"
+file_path_dev: "C:/тестовые/jet/license.txt"
+aes256_key:
+  - 0
+  - 164
+  - 92
+  - 117
+  - 34
+  - 12
+  - 78
+  - 230
+  - 219
+  - 83
+  - 45
+  - 145
+  - 192
+  - 15
+  - 59
+  - 17
+  - 86
+  - 251
+  - 207
+  - 4
+  - 37
+  - 76
+  - 9
+  - 23
+  - 233
+  - 200
+  - 138
+  - 155
+  - 88
+  - 46
+  - 12
+  - 55

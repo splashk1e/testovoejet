@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package license;
+option go_package= "splashkie.license.v1;licensev1";
+message Problem{
+    string error=1;
+    int64 date=2;
+ }
+ message WarningNotice{
+    string notice=1;
+ }
+ message CriticalNotice{
+    string notice=1;
+ }
+enum Module{
+    B=0;
+    C=1;
+    T=2;
+}
+ message License{
+    string uid=1;
+    int64 created_at=2;
+    int64 updated_at=3;
+    int64 check_date=4;
+    int64 recheck_date=5;
+    int64 worktime=6;
+    repeated Module modules=7;
+    string version=8;
+    bool read_only=9;
+    bool recheck_needed=10;
+    repeated WarningNotice warning_notice=11;
+    repeated CriticalNotice critical_notice=12;
+    repeated Problem problems=13;
+    int32 max_basic_conn=14;
+    int32 max_compliance_conn=15;
+    bool conn_soft_limit=16;
+    repeated int64 conn_limit_excess=17;
+    repeated int64 compliance_conn_limit_excess=18;
+    string public_key=19;
+ }
