@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"net/http"
 	"net/http/pprof"
 	"sync"
@@ -19,19 +20,18 @@ type App struct {
 	Handler *handlers.Handler
 }
 
-func (app *App) Run() {
+func (app *App) Run(ctx context.Context) {
 	var wg sync.WaitGroup
-	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		app.Server.Run(app.Config.Port, app.Handler)
+		<-ctx.Done()
 	}()
-	logrus.Info("server started")
-	ServePProf()
+	logrus.Info("server started on port :8080")
+	ServePProf(ctx)
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		app.Worker.Run()
+		app.Worker.Run(ctx)
 	}()
 	logrus.Info("worker started")
 	wg.Wait()
@@ -39,7 +39,7 @@ func (app *App) Run() {
 func (app *App) Shutdown() {
 
 }
-func ServePProf() {
+func ServePProf(ctx context.Context) {
 	srv := http.Server{
 		Addr:         ":6060",
 		Handler:      pprofHandler(),
@@ -48,7 +48,10 @@ func ServePProf() {
 		IdleTimeout:  60 * time.Second,
 	}
 	logrus.Infof("start pprof on port :6060")
-	go func() { _ = srv.ListenAndServe() }()
+	go func() {
+		_ = srv.ListenAndServe()
+		<-ctx.Done()
+	}()
 }
 func pprofHandler() http.Handler {
 	mux := http.NewServeMux()

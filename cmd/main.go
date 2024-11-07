@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -87,5 +90,15 @@ func main() {
 			}
 		}
 	}
-	app.Run()
+	ctx, cancel := context.WithCancel(context.Background())
+	OsSignalCh := make(chan os.Signal)
+	signal.Notify(OsSignalCh, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		<-OsSignalCh
+		cancel()
+		logrus.Info("app starts shutting down")
+	}()
+	app.Run(ctx)
+	ctx.Done()
+	logrus.Info("app stoped his work")
 }

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -19,19 +20,20 @@ func NewWorker(service *services.WorkerService) *Worker {
 		mu:      &sync.Mutex{},
 	}
 }
-func (w *Worker) Run() {
+func (w *Worker) Run(ctx context.Context) {
 	ticker := time.NewTicker(10 * time.Minute)
 	wg := sync.WaitGroup{}
+Loop:
 	for {
 		select {
 		case <-ticker.C:
-
 			wg.Wait()
 			wg.Add(1)
 			go func() {
 				logrus.Info("worker starts file update")
-				defer logrus.Info("worker ends file update")
 				defer wg.Done()
+				defer logrus.Info("worker ends file update")
+
 				w.mu.Lock()
 				defer w.mu.Unlock()
 				if err := w.service.FileUpdate(); err != nil {
@@ -39,6 +41,10 @@ func (w *Worker) Run() {
 				}
 
 			}()
+		case <-ctx.Done():
+			wg.Wait()
+			break Loop
 		}
+
 	}
 }
