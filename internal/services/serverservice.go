@@ -9,7 +9,7 @@ import (
 )
 
 type ServerService struct {
-	Service
+	IService
 }
 
 func (s *ServerService) GetStatus() ([]byte, error) {
@@ -23,7 +23,7 @@ func (s *ServerService) GetStatus() ([]byte, error) {
 	}
 	jsonData, err := json.Marshal(struct {
 		Uid                       string                      `json:"uid"`
-		CheckDate                 int64                       `json:"chech_date"`
+		CheckDate                 int64                       `json:"check_date"`
 		Modules                   []licensev1.Module          `json:"modules"`
 		Version                   string                      `json:"version"`
 		ReadOnly                  bool                        `json:"read_only"`
@@ -44,6 +44,6 @@ func (s *ServerService) GetStatus() ([]byte, error) {
 }
 func NewServerService(cfg config.Config) *ServerService {
 	return &ServerService{
-		Service: *NewService(cfg),
+		IService: NewService(cfg),
 	}
 }

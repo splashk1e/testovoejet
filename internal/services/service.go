@@ -12,6 +12,11 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+type IService interface {
+	FileWrite(protoclass protoreflect.ProtoMessage) error
+	FileRead() (protoreflect.ProtoMessage, error)
+}
 type Service struct {
 	fileservice.IFileService
 	protoservice.IProtoService

@@ -8,7 +8,7 @@ import (
 )
 
 type WorkerService struct {
-	*Service
+	IService
 }
 
 func (s *WorkerService) FileUpdate() error {
@@ -29,6 +29,6 @@ func (s *WorkerService) FileUpdate() error {
 
 func NewWorkerService(cfg config.Config) *WorkerService {
 	return &WorkerService{
-		Service: NewService(cfg),
+		IService: NewService(cfg),
 	}
 }
