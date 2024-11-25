@@ -56,7 +56,7 @@ func TestServerService_GetStatus(t *testing.T) {
 			expectedError:    nil,
 		},
 		{
-			name: "Nil license",
+			name: "wrong protoclass",
 			mockbehavior: func(s *mock_services.MockIService) {
 				s.EXPECT().FileRead().Return(nil, nil)
 			},
