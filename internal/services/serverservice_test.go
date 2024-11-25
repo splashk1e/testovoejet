@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -43,7 +44,7 @@ func TestServerService_GetStatus(t *testing.T) {
 	testTable := []struct {
 		name             string
 		mockbehavior     mockBehavior
-		expectedJsonData string
+		expectedJsonData []byte
 		expectedError    error
 	}{
 		{
@@ -51,8 +52,16 @@ func TestServerService_GetStatus(t *testing.T) {
 			mockbehavior: func(s *mock_services.MockIService) {
 				s.EXPECT().FileRead().Return(license1, nil)
 			},
-			expectedJsonData: `{"uid":"98765","check_date":1700388000,"modules":[2,0],"version":"3.0.0","read_only":true,"recheck_needed":false,"warning_notice":[{"notice":"Warning 3"}],"critical_notice":[{"notice":"Critical 3"}],"problems":[{"error":"Error 3","date":1700388000}],"max_basic_conn":150,"max_compliance_conn":75,"conn_soft_limit":true,"conn_limit_excess":[5,10,15],"compliance_conn_limit_excess":[20,25]}`,
+			expectedJsonData: []byte(`{"uid":"98765","check_date":1700388000,"modules":[2,0],"version":"3.0.0","read_only":true,"recheck_needed":false,"warning_notice":[{"notice":"Warning 3"}],"critical_notice":[{"notice":"Critical 3"}],"problems":[{"error":"Error 3","date":1700388000}],"max_basic_conn":150,"max_compliance_conn":75,"conn_soft_limit":true,"conn_limit_excess":[5,10,15],"compliance_conn_limit_excess":[20,25]}`),
 			expectedError:    nil,
+		},
+		{
+			name: "Nil license",
+			mockbehavior: func(s *mock_services.MockIService) {
+				s.EXPECT().FileRead().Return(nil, nil)
+			},
+			expectedJsonData: nil,
+			expectedError:    errors.New("wrong protoclass type"),
 		},
 	}
 	for _, testCase := range testTable {
@@ -63,8 +72,7 @@ func TestServerService_GetStatus(t *testing.T) {
 			testCase.mockbehavior(service)
 			serverService := ServerService{IService: service}
 
-			byteData, err := serverService.GetStatus()
-			jsonData := string(byteData)
+			jsonData, err := serverService.GetStatus()
 
 			assert.Equal(t, jsonData, testCase.expectedJsonData)
 			assert.Equal(t, err, testCase.expectedError)

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -53,8 +54,17 @@ func main() {
 		cfg.FilePath = cfg.FilePath
 	case "dev":
 		cfg.FilePath = cfg.FilePathDev
+	case "test":
+		cfg.FilePath = cfg.FilePathDev
+		go func() {
+			time.Sleep(10 * time.Second)
+			loadTesting()
+			defer os.Exit(0)
+			defer logrus.Info("load testing ends")
+
+		}()
 	default:
-		logrus.Fatal("wrong flag type, use 'dev' or 'deploy'")
+		logrus.Fatal("wrong flag type, use 'dev' or 'deploy' or 'test'")
 	}
 
 	workerService := services.NewWorkerService(cfg)
@@ -102,3 +112,13 @@ func main() {
 	ctx.Done()
 	logrus.Info("app stoped his work")
 }
+func loadTesting() {
+	logrus.Info("load testing started")
+	start := time.Now()
+	for time.Since(start) <= 300*time.Second {
+		http.Get("http://localhost:8080")
+		time.Sleep(10 * time.Millisecond)
+	}
+}
+
+// curl --location 'http://localhost:6060/debug/pprof/profile?debug=1'
